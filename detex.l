@@ -101,8 +101,8 @@
 #define	IGNORE		Ignore()
 #define INCRLINENO	IncrLineNo()
 #define ECHO		Echo()
-#define NOUN		if (fSpace && !fWord && !fReplace) putchar(' '); else {if (fReplace) printf("noun");}
-#define VERBNOUN		if (fReplace) printf(" verbs noun"); /* puts a verb and a noun to make grammar checking work */
+#define NOUN		if (fSpace && !fWord && !fReplace) putchar(' '); else {if (fReplace) printf("514");}
+#define VERBNOUN		if (fReplace) printf(" is 114"); /* puts a verb and a noun to make grammar checking work */
 #define	SPACE		if (!fWord) putchar(' ')
 #define	NEWLINE		LineBreak()
 #define	LATEX		fLatex=!fForcetex
@@ -203,10 +203,12 @@ VERBSYMBOL	=|\\leq|\\geq|\\in|>|<|\\subseteq|\subseteq|\\subset|\\supset|\\sim|\
 %Start Define Display IncludeOnly Input Math Normal Control
 %Start LaBegin LaDisplay LaEnd LaEnv LaFormula LaInclude LaSubfile
 %Start LaMacro LaOptArg LaMacro2 LaOptArg2 LaVerbatim 
+%Start LaListingX LaListingOptArg LaListing
 %start LaBreak LaPicture
 
 %%
-<Normal>"%".*		/* ignore comments */	{INCRLINENO;}
+
+<Normal>"%".*		/* ignore comments */	{ printf("\e"); INCRLINENO; }
 
 <Normal>"\\begin"{S}"{"{S}"document"{S}"}""\n"*	{LATEX; IGNORE;}
 
@@ -222,6 +224,22 @@ VERBSYMBOL	=|\\leq|\\geq|\\in|>|<|\\subseteq|\subseteq|\\subset|\\supset|\\sim|\
 <LaVerbatim>"\\end"{S}"{"{S}"verbatim"{S}"}" /* verbatim mode */	{BEGIN Normal; IGNORE;}
 <LaVerbatim>[^\\]+				ECHO;
 <LaVerbatim>.					ECHO;
+
+<LaBegin>{S}"{"{S}"lstlisting"{S}"}"		{ if (BeginEnv("lstlisting"))
+							BEGIN LaEnv;
+						    else
+							BEGIN LaListingX;
+						    IGNORE;
+						}
+<LaListingX>{S}"["				{ LaBEGIN LaListingOptArg; IGNORE; }
+<LaListingX>{S}[^\\]+				{ LaBEGIN LaListing; IGNORE; }
+<LaListingX>"\\end"{S}"{"{S}"lstlisting"{S}"}" 	{ BEGIN Normal; IGNORE; }
+<LaListingOptArg>"caption="			{ STRIPARGS(1); }
+<LaListingOptArg>.				;
+<LaListingOptArg>"\]"				{ BEGIN LaListing; }
+<LaListing>"\\end"{S}"{"{S}"lstlisting"{S}"}" 	{ BEGIN Normal; IGNORE; }
+<LaListing>[^\\]+				ECHO;
+<LaListing>.					ECHO;
 
 <LaBegin>{S}"{"{S}"minipage"{S}"}"		{ KILLARGS(1);
 						  if (BeginEnv("minipage"))
@@ -244,6 +262,15 @@ VERBSYMBOL	=|\\leq|\\geq|\\in|>|<|\\subseteq|\subseteq|\\subset|\\supset|\\sim|\
 							BEGIN LaEnv;
 						  else
 							BEGIN Normal;
+						  IGNORE;
+						}
+
+<LaBegin>{S}"{"{S}"subfigure"{S}"}"{S}"["{P}"]"		{
+						  if (BeginEnv("subfigure"))
+							BEGIN LaEnv;
+						  else
+							BEGIN Normal;
+						  KILLARGS(1);
 						  IGNORE;
 						}
 						
@@ -275,6 +302,40 @@ VERBSYMBOL	=|\\leq|\\geq|\\in|>|<|\\subseteq|\subseteq|\\subset|\\supset|\\sim|\
 <Normal>"\\hspace"{Z}{S}"{"{HG}"}"		;
 <Normal>"\\addvspace"{S}"{"{VG}"}"		;
 <Normal>"{"{N}"pt}"						; /* hack to fix \begin{minipage}{300pt} */
+
+
+<Normal>"\\protect"				{ IGNORE; }
+<Normal>"\\footnotemark"			{ IGNORE; }
+<Normal>"\\todo"				{ KILLARGS(1); }
+<Normal>"\\missingfigure"			{ KILLARGS(2); }
+<Normal>"\\lstdefinelanguage"			{ KILLARGS(2); }
+<Normal>"\\lstset"				{ KILLARGS(1); }
+<Normal>"\\tikzset"				{ KILLARGS(1); }
+<Normal>"\\pgfplotsset"				{ KILLARGS(1); }
+<Normal>"\\newtheorem"				{ KILLARGS(2); }
+<Normal>"\\crefname"				{ KILLARGS(3); }
+<Normal>"\\Crefname"				{ KILLARGS(3); }
+<Normal>"\\usetikzlibrary"			{ KILLARGS(1); }
+<Normal>"\\DeclareRobustCommand"		{ KILLARGS(3); }
+<Normal>"\\bibliographystyle"			{ KILLARGS(1); }
+<Normal>"\\addbibresource"			{ KILLARGS(1); }
+<Normal>"\\IfFileExists"			{ KILLARGS(1); }
+<Normal>"\\pagenumbering"			{ KILLARGS(1); }
+<Normal>"\\DeclareCaptionLabelSeparator"	{ KILLARGS(2); }
+<Normal>"\\captionsetup"			{ KILLARGS(1); }
+<Normal>"\\ding"				{ printf("#114"); KILLARGS(1); }
+<Normal>"\\underline"				{ STRIPARGS(1); }
+<Normal>"\\texttt"				{ STRIPARGS(1); }
+<Normal>"\\emph"				{ STRIPARGS(1); }
+<Normal>"\\textbf"				{ STRIPARGS(1); }
+<Normal>"\\textit"				{ STRIPARGS(1); }
+<Normal>"\\item"				{ printf("\n1."); IGNORE; }
+<Normal>"\\num"					{ printf("114"); KILLARGS(1); }
+<Normal>"\\SI"					{ printf("114U"); KILLARGS(2); }
+<Normal>"\\si"					{ printf("U"); KILLARGS(1); }
+<Normal>"\\cref"				{ printf("section X"); KILLARGS(1); }
+<Normal>"\\Cref"				{ printf("Section X"); KILLARGS(1); }
+<Normal>"\\cite"				{ printf("Citation"); KILLARGS(1); }
 
 <Normal>"\\newlength"				{ KILLARGS(1); }
 <Normal>"\\setlength"				{ KILLARGS(2); }
@@ -321,11 +382,10 @@ VERBSYMBOL	=|\\leq|\\geq|\\in|>|<|\\subseteq|\subseteq|\\subset|\\supset|\\sim|\
 <Normal>"\\bibitem"	    /* ignore args  */	{KILLARGS(1); IGNORE;}
 <Normal>"\\bibliography"    /* of these \cs */	{KILLARGS(1); IGNORE;}
 <Normal>"\\bibstyle"				{KILLARGS(1); IGNORE;}
-<Normal>" "?"\\cite"				{KILLARGS(1);} /* kill space before */
 <Normal>"\\documentstyle"			{LATEX; KILLARGS(1); IGNORE;}
 <Normal>"\\documentclass"			{LATEX; KILLARGS(1); IGNORE;}
 <Normal>"\\usepackage"				{KILLARGS(1); IGNORE;}
-<Normal>"\\end"					{KILLARGS(1); IGNORE;}
+<Normal>"\\end"					{KILLARGS(1); printf("\n\n"); IGNORE;}
 <Normal>"\\hypersetup"			{KILLARGS(1);}
 <Normal>"\\index"				{KILLARGS(1);}
 	/*<Normal>"\\footnote"				{KILLARGS(1); SPACE;}*/
@@ -424,6 +484,7 @@ VERBSYMBOL	=|\\leq|\\geq|\\in|>|<|\\subseteq|\subseteq|\\subset|\\supset|\\sim|\
 	/* escaping commands */
 <Normal>"\\slash"			putchar('/');
 <Normal>"\\%"				putchar('%');
+<Normal>"\\#"				putchar('#');
 
 <Normal>\\(aa|AA|ae|AE|oe|OE|ss)[ \t]*[ \t\n}] /* handle ligatures */	{(void)printf("%.2s", yytext+1);}
 <Normal>\\[OoijLl][ \t]*[ \t\n}]		{(void)printf("%.1s", yytext+1);}
@@ -1117,3 +1178,5 @@ VersionExit(void)
 		VERSION);
 	exit(0);
 }
+
+// vim: noexpandtab:ts=8:sw=8
