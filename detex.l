@@ -92,6 +92,7 @@
 
 #ifdef __linux__
 #include <unistd.h>
+#include <fcntl.h>
 #include <stdio.h>
 #include <sys/wait.h>
 #endif
@@ -311,8 +312,8 @@ VERBSYMBOL	=|\\leq|\\geq|\\in|>|<|\\subseteq|\subseteq|\\subset|\\supset|\\sim|\
 <Normal>"{"{N}"pt}"						; /* hack to fix \begin{minipage}{300pt} */
 
 
-<Normal>"\\protect"				{ IGNORE; }
-<Normal>"\\footnotemark"			{ IGNORE; }
+<Normal>"\\protect"				;
+<Normal>"\\footnotemark"			;
 <Normal>"\\title"				{ printf("\n"); IGNORE; }
 <Normal>"\\author"				{ printf("\n"); IGNORE; }
 <Normal>"\\todo"				{ KILLARGS(1); }
@@ -547,7 +548,7 @@ VERBSYMBOL	=|\\leq|\\geq|\\in|>|<|\\subseteq|\subseteq|\\subset|\\supset|\\sim|\
 
 <LaMacro>"\["					{ BEGIN LaOptArg; }
 <LaMacro>"{"					{ cOpenBrace++; }
-<LaMacro>"}""\n"{0,1}				{   cOpenBrace--; INCRLINENO;
+<LaMacro>"}"					{   cOpenBrace--; INCRLINENO;
 						    if (cOpenBrace == 0)
 						    {
 							if (--cArgs==0)
@@ -691,6 +692,7 @@ main(int cArgs, char *rgsbArgs[])
 			S_PA0, // after single \n
 			S_PAR, // after multiple \n
 			S_TXT, // within a word
+			S_XPA, // after escaped \n
 			S_SPA, // after single or multiple space
 			S_ESC, // after \e but before \n
 		} state = S_PAR;
@@ -715,27 +717,31 @@ main(int cArgs, char *rgsbArgs[])
 					break;
 				case '\e':
 					switch (state) {
-						case S_TXT: state = S_ESC; break;
+						case S_PA0:
+						case S_TXT:
 						case S_SPA: state = S_ESC; break;
 						default: break;
 					}
 					break;
 				case '\n':
 					switch (state) {
-						case S_PA0: putchar('\n'); state = S_PAR; break;
-						case S_TXT: state = S_PA0; break;
+						case S_PA0:
+						case S_XPA: putchar('\n'); state = S_PAR; break;
+						case S_TXT:
 						case S_SPA: state = S_PA0; break;
-						case S_ESC: state = S_SPA; break;
+						case S_ESC: state = S_XPA; break;
 						default: break;
 					}
 					break;
 				default:
 					switch (state) {
 						case S_PA0:
+						case S_XPA:
 						case S_SPA: putchar(' ');
 						default: putchar(buf); state = S_TXT; break;
 					}
 					break;
+				case '\x05': putchar('\n'); state = S_PAR; break;
 			}
 		}
 		wait(NULL);
@@ -759,6 +765,7 @@ main(int cArgs, char *rgsbArgs[])
 		fFileLines[csb] = 1;
 	    BEGIN Normal;
 	    (void)yylex();
+	    putchar('\x05');
 	}
 
 	/* if there were no input files, assume stdin */
