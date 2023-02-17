@@ -995,7 +995,8 @@ void
 PrintPrefix()
 {
 	if (fSrcLoc && fIsColumn0) {
-		printf("%s:%d: ", fFileNames[csb], fFileLines[csb]);
+		if (fFileLines[csb] == 1)
+			printf("\n\n%%%%%%%%%%%%%%%% %s %%%%%%%%%%%%%%%%\n\n", fFileNames[csb]);
 		fIsColumn0 = 0;
 	}
 }
