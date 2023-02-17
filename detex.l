@@ -90,6 +90,12 @@
 #include <io.h>
 #endif
 
+#ifdef __linux__
+#include <unistd.h>
+#include <stdio.h>
+#include <sys/wait.h>
+#endif
+
 #endif /* KPATHSEA */
 }
 
@@ -670,6 +676,76 @@ main(int cArgs, char *rgsbArgs[])
 
 #ifdef WIN32
 	_setmode(fileno(stdout), _O_BINARY);
+#endif
+
+#ifdef __linux__
+	int pipefd[2];
+	if (pipe(pipefd)) {
+		perror("pipe(3)");
+		return 1;
+	}
+	pid_t pid = fork();
+	if (pid) { // parent
+		close(pipefd[1]);
+		enum {
+			S_PA0, // after single \n
+			S_PAR, // after multiple \n
+			S_TXT, // within a word
+			S_SPA, // after single or multiple space
+			S_ESC, // after \e but before \n
+		} state = S_PAR;
+		char buf;
+		while (1) {
+			ssize_t res = read(pipefd[0], &buf, 1);
+			if (res < 0) {
+				perror("read(3)");
+				kill(SIGKILL, pid);
+				return 1;
+			}
+			if (res == 0)
+				break;
+			switch (buf) {
+				case ' ':
+				case '\t':
+					switch (state) {
+						case S_ESC: Warning("Space after", "S_ESC"); break;
+						case S_TXT: state = S_SPA; break;
+						default: break;
+					}
+					break;
+				case '\e':
+					switch (state) {
+						case S_TXT: state = S_ESC; break;
+						case S_SPA: state = S_ESC; break;
+						default: break;
+					}
+					break;
+				case '\n':
+					switch (state) {
+						case S_PA0: putchar('\n'); state = S_PAR; break;
+						case S_TXT: state = S_PA0; break;
+						case S_SPA: state = S_PA0; break;
+						case S_ESC: state = S_SPA; break;
+						default: break;
+					}
+					break;
+				default:
+					switch (state) {
+						case S_PA0:
+						case S_SPA: putchar(' ');
+						default: putchar(buf); state = S_TXT; break;
+					}
+					break;
+			}
+		}
+		wait(NULL);
+		return 0;
+	}
+	close(pipefd[0]);
+	if (dup2(pipefd[1], 1) == -1) { // child's stdout is pipe.in
+		perror("dup2(3)");
+		return 1;
+	}
 #endif
 
 	/* process input files */
