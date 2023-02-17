@@ -297,6 +297,7 @@ VERBSYMBOL	=|\\leq|\\geq|\\in|>|<|\\subseteq|\subseteq|\\subset|\\supset|\\sim|\
 
 <Normal>"\\kern"{HD}				;
 <Normal>"\\vskip"{VG}				;
+<Normal>"\\FrameSep"{VG}			;
 <Normal>"\\vspace"{Z}{S}"{"{VG}"}"		;
 <Normal>"\\hskip"{HG}				;
 <Normal>"\\hspace"{Z}{S}"{"{HG}"}"		;
@@ -306,6 +307,8 @@ VERBSYMBOL	=|\\leq|\\geq|\\in|>|<|\\subseteq|\subseteq|\\subset|\\supset|\\sim|\
 
 <Normal>"\\protect"				{ IGNORE; }
 <Normal>"\\footnotemark"			{ IGNORE; }
+<Normal>"\\title"				{ printf("\n"); IGNORE; }
+<Normal>"\\author"				{ printf("\n"); IGNORE; }
 <Normal>"\\todo"				{ KILLARGS(1); }
 <Normal>"\\missingfigure"			{ KILLARGS(2); }
 <Normal>"\\lstdefinelanguage"			{ KILLARGS(2); }
@@ -492,7 +495,7 @@ VERBSYMBOL	=|\\leq|\\geq|\\in|>|<|\\subseteq|\subseteq|\\subset|\\supset|\\sim|\
 
 <Normal>\\[a-zA-Z@]+	/* ignore other \cs */	{BEGIN Control; IGNORE;}
 <Normal>"\\ "					SPACE;
-<Normal>"\\\\"{Z}(\[[^\]]*\])?			NEWLINE;
+<Normal>"\\\\"{Z}(\[[^\]]*\])?			SPACE;
 <Normal>\\.					IGNORE;
 <LaBreak>[0-4]?					{  if (yytext==NULL || strlen(yytext)==0
 							|| atoi(yytext)>=0)
