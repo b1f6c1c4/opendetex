@@ -22,6 +22,7 @@ build() {
 
 package() {
     mkdir -p "$pkgdir/usr/bin/"
+    mkdir -p "$pkgdir/usr/share/man/man1/"
     mkdir -p "$pkgdir/usr/share/licenses/opendetex/"
     mkdir -p "$pkgdir/usr/share/opendetex/"
     mkdir -p "$pkgdir/var/cache/opendetex/"
@@ -31,6 +32,7 @@ package() {
     install -m 0755 "$srcdir/../detex-build" "$pkgdir/usr/bin/"
     install -m 0755 "$srcdir/detex" "$pkgdir/usr/bin/detex-default"
     install -m 0755 "$srcdir/detex-util" "$pkgdir/usr/bin/"
+    install -m 0644 "$srcdir/../detex.1" "$pkgdir/usr/share/man/man1/"
     install -m 0644 "$srcdir/../COPYRIGHT" "$pkgdir/usr/share/licenses/opendetex/"
     install -m 0644 "$srcdir/detex-1.l" "$pkgdir/usr/share/opendetex/"
     install -m 0644 "$srcdir/detex-2.l" "$pkgdir/usr/share/opendetex/"

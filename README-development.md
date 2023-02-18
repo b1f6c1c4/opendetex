@@ -23,16 +23,3 @@ Also recommended: check if compilation is not broken on oldest compilers support
 ```
 make clean all DEFS='-std=iso9899:199409'
 ```
-
-After pushing check cross-platform compilation results on commits list on GitHub or directly on [Travis CI](https://travis-ci.org/pkubowicz/opendetex).
-
-## Releasing a new version
-
-1. Make sure you have GnuPG configured in order to sign commits
-2. Run `./release.sh` which will
-- create a commit releasing the current version and tag it
-- create a `.tar.bz2` file with the released version
-- create a commit starting work on the next version
-3. git-push using the instruction printed by the script
-4. On GitHub go to Code → Releases → Draft a new release
-  - attach the `.tar.bz2` file
