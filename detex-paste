@@ -4,25 +4,7 @@ set -euo pipefail
 
 MY="$(dirname "$(realpath "$0")")"
 
-if [ -r .detexrc ]; then
-    if ! [ -w "$DIR" ]; then
-        echo "Warning: $DIR is not writable" >&2
-        BIN="$MY/detex-default"
-    elif ! [ -x "$SRC" ]; then
-        echo "Warning: $SRC is not searchable" >&2
-        BIN="$MY/detex-default"
-    else
-        BIN="$DIR/$(sha1sum .detexrc | cut -d -f 1)"
-        if [ ! -x "$BIN" ] || [ "$0" -nt "$BIN" ] || [ "$SRC/detex-2.l" -nt "$BIN" ] || [ "$SRC/detex-1.l" -nt "$BIN" ]; then
-            echo "Notice: Compiling $BIN from $PWD/.detexrc" >&2
-            cat "$SRC/detex-1.l" .detexrc "$SRC/detex-2.l" \
-                | flex -o /dev/stdout \
-                | gcc -std=c2x -march=native -Wall -Wextra -Werror -pedantic -I "$SRC" -O3 -lfl -o "$BIN" -x c -DVERSION=\"custom\" -
-        fi
-    fi
-else
-    BIN="$MY/detex-default"
-fi
+BIN="$("$MY/detex-build")"
 
 T="$(realpath "$(mktemp -d)")"
 finish() {
@@ -31,6 +13,11 @@ finish() {
 }
 trap finish EXIT
 
+if [ -n "${DISPLAY:-}" ] && command -v xclip >/dev/null; then
+    xclip -selection clipboard -out | "$MY/detex-util" diffy >"$T/new.txt"
+else
+    "$MY/detex-util" diffy >"$T/new.txt"
+fi
+
 "$BIN" -lsr1 "$@" | "$MY/detex-util" canon | "$MY/detex-util" diffy >"$T/old.txt"
-xclip -selection clipboard -out | "$MY/detex-util" diffy >"$T/new.txt"
 git -c diff.default.xfuncname="^%%%%%%%% .* %%%%%%%%$" diff --no-index -w --word-diff -- "$T/old.txt" "$T/new.txt"

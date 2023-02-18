@@ -7,6 +7,7 @@ arch=('x86_64')
 url="https://github.com/b1f6c1c4/opendetex"
 license=('custom')
 depends=('git' 'gcc')
+optdepends=('xclip')
 source=()
 sha256sums=()
 
@@ -27,6 +28,7 @@ package() {
     chmod a+rwxt "$pkgdir/var/cache/opendetex/"
     install -m 0755 "$srcdir/../detex-copy" "$pkgdir/usr/bin/"
     install -m 0755 "$srcdir/../detex-paste" "$pkgdir/usr/bin/"
+    install -m 0755 "$srcdir/../detex-build" "$pkgdir/usr/bin/"
     install -m 0755 "$srcdir/detex" "$pkgdir/usr/bin/detex-default"
     install -m 0755 "$srcdir/detex-util" "$pkgdir/usr/bin/"
     install -m 0644 "$srcdir/../COPYRIGHT" "$pkgdir/usr/share/licenses/opendetex/"

@@ -1,0 +1,38 @@
+#!/bin/bash
+
+set -euo pipefail
+
+MY="$(dirname "$(realpath "$0")")"
+
+SRC=/usr/share/opendetex
+DIR=/var/cache/opendetex
+
+if ! [ -r .detexrc ]; then
+    echo "$MY/detex-default"
+    exit
+fi
+
+if [ ! -d "$DIR" ] || [ ! -w "$DIR" ]; then
+    echo "Warning: $DIR is not a writable directory" >&2
+    echo "$MY/detex-default"
+    exit
+fi
+
+DIR="$DIR/$USER"
+mkdir -p "$DIR"
+chmod 700 "$DIR"
+
+if ! [ -x "$SRC" ]; then
+    echo "Warning: $SRC is not searchable" >&2
+    echo "$MY/detex-default"
+    exit
+fi
+
+BIN="$DIR/$(sha1sum .detexrc | cut -d ' ' -f 1)"
+if [ ! -x "$BIN" ] || [ "$0" -nt "$BIN" ] || [ "$SRC/detex-2.l" -nt "$BIN" ] || [ "$SRC/detex-1.l" -nt "$BIN" ]; then
+    echo "Notice: Compiling $BIN from $PWD/.detexrc" >&2
+    cat "$SRC/detex-1.l" .detexrc "$SRC/detex-2.l" \
+        | flex -o /dev/stdout \
+        | gcc -std=c2x -march=native -Wall -Wextra -Werror -pedantic -I "$SRC" -O3 -lfl -o "$BIN" -x c -DVERSION=\"custom\" -
+fi
+echo "$BIN"

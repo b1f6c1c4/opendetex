@@ -4,27 +4,10 @@ set -euo pipefail
 
 MY="$(dirname "$(realpath "$0")")"
 
-SRC=/usr/share/opendetex
-DIR=/var/cache/opendetex
+BIN="$("$MY/detex-build")"
 
-if [ -r .detexrc ]; then
-    if ! [ -w "$DIR" ]; then
-        echo "Warning: $DIR is not writable" >&2
-        BIN="$MY/detex-default"
-    elif ! [ -x "$SRC" ]; then
-        echo "Warning: $SRC is not searchable" >&2
-        BIN="$MY/detex-default"
-    else
-        BIN="$DIR/$(sha1sum .detexrc | cut -d -f 1)"
-        if [ ! -x "$BIN" ] || [ "$0" -nt "$BIN" ] || [ "$SRC/detex-2.l" -nt "$BIN" ] || [ "$SRC/detex-1.l" -nt "$BIN" ]; then
-            echo "Notice: Compiling $BIN from $PWD/.detexrc" >&2
-            cat "$SRC/detex-1.l" .detexrc "$SRC/detex-2.l" \
-                | flex -o /dev/stdout \
-                | gcc -std=c2x -march=native -Wall -Wextra -Werror -pedantic -I "$SRC" -O3 -lfl -o "$BIN" -x c -DVERSION=\"custom\" -
-        fi
-    fi
+if [ -n "${DISPLAY:-}" ] && command -v xclip >/dev/null; then
+    "$BIN" -lsr1 "$@" | "$MY/detex-util" canon | xclip -selection clipboard
 else
-    BIN="$MY/detex-default"
+    "$BIN" -lsr1 "$@" | "$MY/detex-util" canon
 fi
-
-"$BIN" -lsr1 "$@" | "$MY/detex-util" canon | xclip -selection clipboard
