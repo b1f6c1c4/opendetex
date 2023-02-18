@@ -1,0 +1,16 @@
+#!/bin/bash
+
+set -euo pipefail
+
+MY="$(dirname "$(realpath "$0")")"
+
+T="$(realpath "$(mktemp -d)")"
+finish() {
+    cd /
+    rm -rf "$T"
+}
+trap finish EXIT
+
+"$MY/detex" -lsr1 "$@" | "$MY/detex-util" canon | "$MY/detex-util" diffy >"$T/old.txt"
+xclip -selection clipboard -out | "$MY/detex-util" diffy >"$T/new.txt"
+git -c diff.default.xfuncname="^%%%%%%%% .* %%%%%%%%$" diff --no-index -w --word-diff -- "$T/old.txt" "$T/new.txt"

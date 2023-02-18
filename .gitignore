@@ -1,5 +1,5 @@
-delatex
 detex
+detex-util
 detex.c
-detex.o
+*.o
 *.tar.bz2

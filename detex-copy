@@ -1,0 +1,7 @@
+#!/bin/bash
+
+set -euo pipefail
+
+MY="$(dirname "$(realpath "$0")")"
+
+"$MY/detex" -lsr1 "$@" | "$MY/detex-util" canon | xclip -selection clipboard

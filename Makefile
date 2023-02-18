@@ -91,7 +91,7 @@ LPR	= lpr -p
 
 # Program names
 #
-PROGS	= detex delatex
+PROGS	= detex detex-util
 
 # Header files
 #
@@ -110,10 +110,10 @@ VERSION = 2.8.10-SNAPSHOT
 all:	${PROGS}
 
 detex: ${D_OBJ}
-	${CC} ${CFLAGS} -o $@ ${D_OBJ} ${LEXLIB}
+	${CC} ${CFLAGS} -o $@ $^ ${LEXLIB}
 
-delatex: detex
-	cp detex delatex
+detex-util: util.o
+	${CC} ${CFLAGS} -o $@ $^
 
 detex.c: detex.l
 	${LEX} ${LFLAGS} detex.l
@@ -147,8 +147,8 @@ print:	${HDR} ${SRC}
 test: all
 	./test.pl
 
-run: delatex
-	./delatex in > out.txt
+run: detex
+	./detex -l in > out.txt
 
 package: clean detex.c
 	tar cjfv opendetex-${VERSION}.tar.bz2 --exclude='*.o' ChangeLog COPYRIGHT detex.* INSTALL Makefile README
