@@ -204,5 +204,6 @@ int main(int argc, char *argv[]) {
 
 usage:
     fprintf(stderr, "Usage: %s <canon|diffy>\n", argv[0]);
+	fprintf(stderr, "\nOpenDetex version %s\nhttps://github.com/b1f6c1c4/opendetex\n", VERSION);
     return 2;
 }

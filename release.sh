@@ -1,12 +1,17 @@
 #!/bin/bash
 
+grep '^pkgver' PKGBUILD
+grep '^Version:' control
+echo 'Is this correct????'
+read -p "Press enter to continue"
+
 set -euxo pipefail
 
-# rm -f opendetex-*.pkg.tar.zst opendetex.deb
-# 
-# makepkg
-# 
-# ln -s opendetex-*.pkg.tar.zst opendetex.pkg.tar.zst
+rm -f opendetex-*.pkg.tar.zst opendetex.deb
+
+makepkg
+
+ln -sf opendetex-*.pkg.tar.zst opendetex.pkg.tar.zst
 
 rm -rf opendetex
 cp -r --preserve=mode pkg/opendetex .

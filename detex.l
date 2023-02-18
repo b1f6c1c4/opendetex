@@ -1189,7 +1189,7 @@ UsageExit(void)
 void
 VersionExit(void)
 {
-	(void)printf("\nOpenDetex version %s\nhttps://github.com/pkubowicz/opendetex\n",
+	(void)printf("\nOpenDetex version %s\nhttps://github.com/b1f6c1c4/opendetex\n",
 		VERSION);
 	exit(0);
 }

@@ -2,6 +2,16 @@
 
 set -euo pipefail
 
+if [ "$#" -eq 1 ]; then
+    case "$1" in
+        -v|--version|-V|version)
+            echo 'OpenDetex version @VERSION@'
+            echo 'https://github.com/b1f6c1c4/opendetex'
+            exit
+            ;;
+    esac
+fi
+
 MY="$(dirname "$(realpath "$0")")"
 
 SRC=/usr/share/opendetex
@@ -28,11 +38,12 @@ if ! [ -x "$SRC" ]; then
     exit
 fi
 
-BIN="$DIR/$(sha1sum .detexrc | cut -d ' ' -f 1)"
+SHA="$(sha1sum .detexrc | cut -d ' ' -f 1)"
+BIN="$DIR/$SHA"
 if [ ! -x "$BIN" ] || [ "$0" -nt "$BIN" ] || [ "$SRC/detex-2.l" -nt "$BIN" ] || [ "$SRC/detex-1.l" -nt "$BIN" ]; then
     echo "Notice: Compiling $BIN from $PWD/.detexrc" >&2
     cat "$SRC/detex-1.l" .detexrc "$SRC/detex-2.l" \
         | flex -o /dev/stdout \
-        | gcc -std=c2x -march=native -Wall -Wextra -Werror -pedantic -I "$SRC" -O3 -lfl -o "$BIN" -x c -DVERSION=\"custom\" -
+        | gcc -std=c2x -march=native -Wall -Wextra -Werror -pedantic -I "$SRC" -O3 -lfl -o "$BIN" -x c -DVERSION=\"@VERSION@-$SHA\" -
 fi
 echo "$BIN"

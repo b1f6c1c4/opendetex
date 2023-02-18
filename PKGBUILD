@@ -18,6 +18,9 @@ build() {
     gcc ${CFLAGS} -o "$srcdir/detex-util" "$srcdir/../util.c"
     sed "/^ \/\* PLACEHOLDER FOR \.detexrc \*/q" "$srcdir/../detex.l" > "$srcdir/detex-1.l"
     sed "0,/^ \/\* PLACEHOLDER FOR \.detexrc \*/d" "$srcdir/../detex.l" > "$srcdir/detex-2.l"
+    sed "s/@VERSION@/$pkgver/g" "$srcdir/../detex-copy" > "$srcdir/detex-copy"
+    sed "s/@VERSION@/$pkgver/g" "$srcdir/../detex-paste" > "$srcdir/detex-paste"
+    sed "s/@VERSION@/$pkgver/g" "$srcdir/../detex-build" > "$srcdir/detex-build"
 }
 
 package() {
@@ -27,12 +30,12 @@ package() {
     mkdir -p "$pkgdir/usr/share/opendetex/"
     mkdir -p "$pkgdir/var/cache/opendetex/"
     chmod a+rwxt "$pkgdir/var/cache/opendetex/"
-    install -m 0755 "$srcdir/../detex-copy" "$pkgdir/usr/bin/"
-    install -m 0755 "$srcdir/../detex-paste" "$pkgdir/usr/bin/"
-    install -m 0755 "$srcdir/../detex-build" "$pkgdir/usr/bin/"
+    install -m 0755 "$srcdir/detex-copy" "$pkgdir/usr/bin/"
+    install -m 0755 "$srcdir/detex-paste" "$pkgdir/usr/bin/"
+    install -m 0755 "$srcdir/detex-build" "$pkgdir/usr/bin/"
     install -m 0755 "$srcdir/detex" "$pkgdir/usr/bin/detex-default"
     install -m 0755 "$srcdir/detex-util" "$pkgdir/usr/bin/"
-    install -m 0644 "$srcdir/../detex.1" "$pkgdir/usr/share/man/man1/"
+    install -m 0644 "$srcdir/../detex.1" "$pkgdir/usr/share/man/man1/detex-default.1"
     install -m 0644 "$srcdir/../COPYRIGHT" "$pkgdir/usr/share/licenses/opendetex/"
     install -m 0644 "$srcdir/detex-1.l" "$pkgdir/usr/share/opendetex/"
     install -m 0644 "$srcdir/detex-2.l" "$pkgdir/usr/share/opendetex/"

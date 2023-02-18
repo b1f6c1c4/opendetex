@@ -2,6 +2,16 @@
 
 set -euo pipefail
 
+if [ "$#" -eq 1 ]; then
+    case "$1" in
+        -v|--version|-V|version)
+            echo 'OpenDetex version @VERSION@'
+            echo 'https://github.com/b1f6c1c4/opendetex'
+            exit
+            ;;
+    esac
+fi
+
 MY="$(dirname "$(realpath "$0")")"
 
 BIN="$("$MY/detex-build")"
