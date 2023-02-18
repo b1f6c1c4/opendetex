@@ -1,5 +1,8 @@
 detex
 detex-util
 detex.c
+/src
+/pkg
 *.o
 *.tar.bz2
+*.pkg.tar.zst

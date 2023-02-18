@@ -216,7 +216,9 @@ VERBSYMBOL	=|\\leq|\\geq|\\in|>|<|\\subseteq|\subseteq|\\subset|\\supset|\\sim|\
 
 %%
 
-<Normal>"%".*		/* ignore comments */	{ printf("\e"); INCRLINENO; }
+ /* PLACEHOLDER FOR .detexrc */
+
+<Normal>"%".*		/* ignore comments */	{ printf("%c", 27 /* \e */); INCRLINENO; }
 
 <Normal>"\\begin"{S}"{"{S}"document"{S}"}""\n"*	{LATEX; IGNORE;}
 
@@ -243,8 +245,8 @@ VERBSYMBOL	=|\\leq|\\geq|\\in|>|<|\\subseteq|\subseteq|\\subset|\\supset|\\sim|\
 <LaListingX>{S}[^\\]+				{ LaBEGIN LaListing; IGNORE; }
 <LaListingX>"\\end"{S}"{"{S}"lstlisting"{S}"}" 	{ BEGIN Normal; IGNORE; }
 <LaListingOptArg>"caption="			{ STRIPARGS(1); }
-<LaListingOptArg>.				;
 <LaListingOptArg>"\]"				{ BEGIN LaListing; }
+<LaListingOptArg>.				;
 <LaListing>"\\end"{S}"{"{S}"lstlisting"{S}"}" 	{ BEGIN Normal; IGNORE; }
 <LaListing>[^\\]+				ECHO;
 <LaListing>.					ECHO;

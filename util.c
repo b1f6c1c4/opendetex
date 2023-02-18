@@ -161,7 +161,7 @@ int canon(void) {
 					default: break;
 				}
 				break;
-			case '\e':
+			case 27: // \e
 				switch (state) {
 					case S_PA0:
 					case S_TXT:
@@ -183,7 +183,7 @@ int canon(void) {
 				switch (state) {
 					case S_PA0:
 					case S_XPA:
-					case S_SPA: putchar(' ');
+					case S_SPA: putchar(' '); [[fallthrough]];
 					default: putchar(buf); state = S_TXT; break;
 				}
 				break;
