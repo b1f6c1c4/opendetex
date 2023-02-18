@@ -8,3 +8,4 @@ detex.c
 *.tar.bz2
 *.pkg.tar.zst
 *.deb
+*.rpm

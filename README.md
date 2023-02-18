@@ -2,20 +2,41 @@
 
 > OpenDetex is a program to remove TeX constructs from a text file.  It recognizes
 > the `\input` command.  It is capable of generating proofreader-ready text.
+> Our results are much, much better than the original `detex` program commonly found in TeX Live.
 
-## Usage
+## Install
 
-1. Install OpenDetex:
-
+- For `pacman`-based system: (Arch Linux, Manjaro, etc.)
     1. Download [pkg.tar.zst File](https://github.com/b1f6c1c4/opendetex/releases/latest/download/opendetex.pkg.tar.zst)
     1. `sudo pacman -U <path-to-pkg.tar.zst>`
+- For `apt/deb`-based system: (Debian, Ubuntu, etc.)
+    1. Download [deb File](https://github.com/b1f6c1c4/opendetex/releases/latest/download/opendetex.deb)
+    1. `sudo apt update`
+    1. `sudo apt install <path-to-deb>`
+- For `rpm/dnf`-based system: (Fedora, RHEL, etc.)
+    1. Download [rpm File](https://github.com/b1f6c1c4/opendetex/releases/latest/download/opendetex.rpm)
+    1. `sudo dnf install <path-to-rpm>`
 
-1. Inside your project, create a file named `.detexrc` describing additional lexer rules:
+## Configure
 
-    ```lex
-    <Normal>"\\mymacroa"   { printf("some substitude words"); }
-    <Normal>"\\mymacrob"   { printf("other substitude words"); }
-    ```
+We understand that TeX/LaTeX users use custom-defined macros to simplify their writing.
+To properly detex such macros,
+just create a file named `.detexrc` describing additional lexer rules:
+
+```lex
+<Normal>"\\mymacroa"   { printf("some substitude words"); }
+<Normal>"\\mymacrob"   { printf("other substitude words"); }
+```
+
+Checkout [`detex.l`](/detex.l#L308) for more examples.
+
+## Standalone use
+
+```bash
+DISPLAY= detex-copy main.tex
+```
+
+## Use with a grammar checker (requires X11 and `xclip`)
 
 1. Detex and copy your entire LaTeX document, including `\input`'d, into clipboard:
 
@@ -24,6 +45,7 @@
     ```
 
 1. Paste your entire document into your favorite grammar checker
+1. Edit using your favorite grammar checker
 1. Copy the entire document from your favorite grammar checker
 1. Obtain a list of changes based on your clipboard information:
 
@@ -31,7 +53,9 @@
     detex-paste main.tex
     ```
 
-## Legal, Copyright, history
+1. (TODO) automatically integrate changes back to your TeX files
+
+## Legal, copyright, history
 
 This software package is distributed under the NCSA/University of
 Illinois Open Source License.

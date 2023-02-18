@@ -7,7 +7,12 @@ read -p "Press enter to continue"
 
 set -euxo pipefail
 
-rm -f opendetex-*.pkg.tar.zst opendetex.deb
+docker build -t detex-releaser --pull - <<EOF
+FROM debian:unstable
+RUN apt update && apt install -y alien && apt clean
+EOF
+
+rm -f opendetex-*.pkg.tar.zst opendetex.deb opendetex.rpm
 
 makepkg
 
@@ -19,7 +24,16 @@ mkdir opendetex/DEBIAN
 cp control opendetex/DEBIAN/
 rm opendetex/.{BUILDINFO,MTREE,PKGINFO}
 
-docker run --pull always --rm -it \
+docker run --rm -it \
     -v "$PWD:/mnt" --workdir /mnt \
-    --user "$UID:$(id -g)" debian:stable \
+    --user "$UID:$(id -g)" detex-releaser \
     dpkg-deb --root-owner-group --build opendetex
+
+docker run --rm -it \
+    -v "$PWD:/mnt" --workdir /mnt \
+    detex-releaser \
+    sh -c '
+        set -e
+        alien -r opendetex.deb
+        mv opendetex-*.rpm opendetex.rpm
+        cp -p --attributes-only opendetex.deb opendetex.rpm'
