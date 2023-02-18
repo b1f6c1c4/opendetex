@@ -1,8 +1,10 @@
 detex
 detex-util
 detex.c
+/opendetex
 /src
 /pkg
 *.o
 *.tar.bz2
 *.pkg.tar.zst
+*.deb

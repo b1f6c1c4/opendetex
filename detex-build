@@ -18,7 +18,7 @@ if [ ! -d "$DIR" ] || [ ! -w "$DIR" ]; then
     exit
 fi
 
-DIR="$DIR/$USER"
+DIR="$DIR/$(whoami)"
 mkdir -p "$DIR"
 chmod 700 "$DIR"
 

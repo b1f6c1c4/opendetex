@@ -1,0 +1,11 @@
+Package: opendetex
+Version: 3.0.0-1
+Section: tex
+Priority: optional
+Architecture: amd64
+Depends: git (>= 1.6.0.3), gcc (>= 9.0.0), flex
+Suggests: xclip
+Maintainer: Maintainer: b1f6c1c4 <b1f6c1c4@gmail.com>
+Description: extract plain text from TeX/LaTeX files
+ Improved version of Detex - tool for extracting plain text from TeX and LaTeX sources
+Homepage: https://github.com/b1f6c1c4/opendetex
